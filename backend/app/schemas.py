@@ -17,6 +17,9 @@ class ExerciseOut(BaseModel):
     instructions: str
     video_url: Optional[str]
 
+    class Config:
+        orm_mode = True
+
 
 class WorkoutExerciseOut(BaseModel):
     exercise: ExerciseOut
