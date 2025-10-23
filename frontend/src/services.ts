@@ -30,6 +30,7 @@ export async function logSession(payload: {
   energy_level: string;
   notes?: string;
   calories_burned?: number;
+  performed_at?: string;
 }): Promise<void> {
   await client.post('/sessions', payload);
 }

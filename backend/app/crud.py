@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from calendar import monthrange
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import date, datetime, time, timedelta
 from typing import Dict, Iterable, List, Sequence
 
@@ -156,6 +156,8 @@ def log_session(session: Session, payload: schemas.SessionLogIn) -> SessionLog:
         notes=payload.notes,
         calories_burned=payload.calories_burned,
     )
+    if payload.performed_at is not None:
+        session_log.performed_at = payload.performed_at
     session.add(session_log)
     session.commit()
     session.refresh(session_log)
@@ -261,6 +263,51 @@ def get_dashboard_summary(session: Session) -> schemas.DashboardSummary:
         select(MetricLog).where(MetricLog.logged_at >= datetime.utcnow() - timedelta(days=30))
     ).all()
 
+    lookback_days = [today - timedelta(days=offset) for offset in range(6, -1, -1)]
+    weekly_training_load: List[schemas.TrainingLoadPoint] = []
+    for current_day in lookback_days:
+        day_logs = [log for log in all_logs if log.performed_at.date() == current_day]
+        sessions_count = len(day_logs)
+        total_duration = sum(log.duration_minutes for log in day_logs)
+        average_rpe = round(sum(log.rpe for log in day_logs) / sessions_count, 1) if sessions_count else 0.0
+        training_load = int(sum(log.duration_minutes * log.rpe for log in day_logs))
+        weekly_training_load.append(
+            schemas.TrainingLoadPoint(
+                day=current_day,
+                sessions=sessions_count,
+                total_duration=total_duration,
+                average_rpe=average_rpe,
+                training_load=training_load,
+            )
+        )
+
+    week_start = today - timedelta(days=6)
+    recent_habits = [habit for habit in habit_logs if habit.day >= week_start]
+    habit_days_logged = {habit.day for habit in recent_habits}
+    average_sleep = round(
+        sum(habit.sleep_hours for habit in recent_habits) / len(recent_habits),
+        1,
+    ) if recent_habits else 0.0
+    average_water = round(
+        sum(habit.water_intake_liters for habit in recent_habits) / len(recent_habits),
+        1,
+    ) if recent_habits else 0.0
+    average_readiness = round(
+        sum(habit.readiness_score for habit in recent_habits) / len(recent_habits),
+        1,
+    ) if recent_habits else 0.0
+    mood_counts = Counter(habit.mood for habit in recent_habits if habit.mood)
+    dominant_mood = mood_counts.most_common(1)[0][0] if mood_counts else None
+
+    recovery_summary = schemas.RecoverySummary(
+        average_sleep_hours=average_sleep,
+        average_water_intake_liters=average_water,
+        average_readiness_score=average_readiness,
+        dominant_mood=dominant_mood,
+        logged_days=len(habit_days_logged),
+        expected_days=7,
+    )
+
     weekly_progress = _calculate_weekly_progress(
         today=today,
         weekday=weekday,
@@ -277,6 +324,8 @@ def get_dashboard_summary(session: Session) -> schemas.DashboardSummary:
         metrics=_group_metrics(metric_logs),
         weekly_progress=weekly_progress,
         training_streak_days=training_streak,
+        weekly_training_load=weekly_training_load,
+        recovery_summary=recovery_summary,
     )
 
 

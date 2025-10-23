@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
-import { Activity, CalendarClock, Clock3, Flame, Sparkles } from 'lucide-react';
+import { Activity, BarChart3, CalendarClock, Clock3, Flame, Sparkles } from 'lucide-react';
 import { SessionSummary } from '../types';
 
 dayjs.locale('fr');
@@ -10,6 +10,15 @@ interface Props {
 }
 
 export function RecentSessions({ sessions }: Props) {
+  const totalSessions = sessions.length;
+  const totalLoad = sessions.reduce((acc, session) => acc + session.duration_minutes * session.rpe, 0);
+  const averageRpe = totalSessions
+    ? (sessions.reduce((acc, session) => acc + session.rpe, 0) / totalSessions).toFixed(1)
+    : '0.0';
+  const averageDuration = totalSessions
+    ? Math.round(sessions.reduce((acc, session) => acc + session.duration_minutes, 0) / totalSessions)
+    : 0;
+
   return (
     <section className="glass-panel flex flex-col gap-6 p-6 lg:p-8">
       <header className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
@@ -24,6 +33,26 @@ export function RecentSessions({ sessions }: Props) {
         </span>
       </header>
 
+      {sessions.length > 0 && (
+        <div className="grid gap-4 md:grid-cols-3">
+          <article className="rounded-3xl border border-white/10 bg-white/5 p-4">
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Charge cumulée</p>
+            <p className="mt-2 font-display text-2xl text-white">{totalLoad} u.a.</p>
+            <p className="mt-1 text-xs text-slate-400">Somme durée x RPE</p>
+          </article>
+          <article className="rounded-3xl border border-white/10 bg-white/5 p-4">
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Durée moyenne</p>
+            <p className="mt-2 font-display text-2xl text-white">{averageDuration} min</p>
+            <p className="mt-1 text-xs text-slate-400">Sur les {totalSessions} dernières séances</p>
+          </article>
+          <article className="rounded-3xl border border-white/10 bg-white/5 p-4">
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Intensité moyenne</p>
+            <p className="mt-2 font-display text-2xl text-white">RPE {averageRpe}</p>
+            <p className="mt-1 text-xs text-slate-400">Ressenti moyen</p>
+          </article>
+        </div>
+      )}
+
       {sessions.length === 0 ? (
         <p className="rounded-3xl border border-dashed border-white/15 bg-white/5 px-5 py-10 text-center text-sm text-slate-300">
           Tu n'as pas encore enregistré de séance. Utilise le journal pour garder une trace de chaque entraînement.
@@ -32,6 +61,7 @@ export function RecentSessions({ sessions }: Props) {
         <div className="grid gap-4">
           {sessions.map((session) => {
             const performedAt = dayjs(session.performed_at);
+            const trainingLoad = session.duration_minutes * session.rpe;
             return (
               <article key={session.id} className="rounded-3xl border border-white/10 bg-white/5 p-5">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -51,6 +81,9 @@ export function RecentSessions({ sessions }: Props) {
                     </span>
                     <span className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1">
                       <Activity className="h-4 w-4" /> RPE {session.rpe}
+                    </span>
+                    <span className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1">
+                      <BarChart3 className="h-4 w-4" /> {trainingLoad} u.a.
                     </span>
                     {session.calories_burned ? (
                       <span className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1">

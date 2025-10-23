@@ -48,6 +48,24 @@ class SessionLogIn(BaseModel):
     energy_level: str
     notes: Optional[str] = None
     calories_burned: Optional[int] = None
+    performed_at: Optional[datetime] = None
+
+
+class TrainingLoadPoint(BaseModel):
+    day: date
+    sessions: int
+    total_duration: int
+    average_rpe: float
+    training_load: int
+
+
+class RecoverySummary(BaseModel):
+    average_sleep_hours: float
+    average_water_intake_liters: float
+    average_readiness_score: float
+    dominant_mood: Optional[str]
+    logged_days: int
+    expected_days: int
 
 
 class MetricPoint(BaseModel):
@@ -105,6 +123,8 @@ class DashboardSummary(BaseModel):
     metrics: List[TrendMetric]
     weekly_progress: WeeklyProgress
     training_streak_days: int
+    weekly_training_load: List[TrainingLoadPoint]
+    recovery_summary: RecoverySummary
 
 
 class CalendarDay(BaseModel):
