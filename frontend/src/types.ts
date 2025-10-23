@@ -76,3 +76,34 @@ export interface CalendarMonth {
   year: number;
   days: CalendarDay[];
 }
+
+export type ThemeId = 'glacier' | 'sunrise' | 'forest' | 'nebula';
+
+export interface CustomFocus {
+  title: string;
+  summary: string;
+  emphasis: string;
+}
+
+export interface Goal {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+
+export interface UserPreferences {
+  ownerName: string;
+  programName: string;
+  tagline: string;
+  theme: ThemeId;
+  showSections: {
+    metrics: boolean;
+    habits: boolean;
+    calendar: boolean;
+    sessionLogger: boolean;
+    exerciseLibrary: boolean;
+    personalGoals: boolean;
+  };
+  customFocus: CustomFocus;
+  goals: Goal[];
+}

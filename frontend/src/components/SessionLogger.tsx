@@ -53,7 +53,7 @@ export function SessionLogger({ workouts }: Props) {
           <label className="grid gap-2 text-sm text-slate-200">
             Séance réalisée
             <select
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white focus:border-neon focus:outline-none"
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white focus:border-[var(--accent-color)] focus:outline-none"
               value={form.workout_id}
               onChange={(event) => setForm((prev) => ({ ...prev, workout_id: Number(event.target.value) }))}
             >
@@ -70,7 +70,7 @@ export function SessionLogger({ workouts }: Props) {
               type="number"
               min={15}
               max={180}
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white focus:border-neon focus:outline-none"
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white focus:border-[var(--accent-color)] focus:outline-none"
               value={form.duration_minutes}
               onChange={(event) => setForm((prev) => ({ ...prev, duration_minutes: Number(event.target.value) }))}
             />
@@ -81,7 +81,7 @@ export function SessionLogger({ workouts }: Props) {
               type="number"
               min={1}
               max={10}
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white focus:border-neon focus:outline-none"
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white focus:border-[var(--accent-color)] focus:outline-none"
               value={form.rpe}
               onChange={(event) => setForm((prev) => ({ ...prev, rpe: Number(event.target.value) }))}
             />
@@ -90,7 +90,7 @@ export function SessionLogger({ workouts }: Props) {
             Énergie ressentie
             <input
               type="text"
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white focus:border-neon focus:outline-none"
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white focus:border-[var(--accent-color)] focus:outline-none"
               value={form.energy_level}
               onChange={(event) => setForm((prev) => ({ ...prev, energy_level: event.target.value }))}
             />
@@ -100,7 +100,7 @@ export function SessionLogger({ workouts }: Props) {
             <input
               type="number"
               min={0}
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white focus:border-neon focus:outline-none"
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white focus:border-[var(--accent-color)] focus:outline-none"
               value={form.calories_burned}
               onChange={(event) => setForm((prev) => ({ ...prev, calories_burned: Number(event.target.value) }))}
             />
@@ -110,7 +110,7 @@ export function SessionLogger({ workouts }: Props) {
           Notes & ressentis
           <textarea
             rows={3}
-            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white focus:border-neon focus:outline-none"
+            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white focus:border-[var(--accent-color)] focus:outline-none"
             value={form.notes}
             placeholder="Points à travailler, sensations, feedback mental..."
             onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
@@ -120,11 +120,15 @@ export function SessionLogger({ workouts }: Props) {
           <button
             type="submit"
             disabled={loading}
-            className="rounded-full bg-gradient-to-r from-neon via-emerald to-flame px-6 py-3 font-semibold text-slate-900 shadow-lg shadow-emerald/40 transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+            className="btn-accent disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? 'Enregistrement...' : 'Valider la séance'}
           </button>
-          {status && <span className="text-sm text-emerald">{status}</span>}
+          {status && (
+            <span className="text-sm" style={{ color: 'var(--accent-gradient-mid)' }}>
+              {status}
+            </span>
+          )}
         </div>
       </form>
     </section>
