@@ -4,24 +4,45 @@ import { Workout } from '../types';
 
 interface Props {
   workouts: Workout[];
+  onLogged?: () => Promise<void> | void;
 }
 
-export function SessionLogger({ workouts }: Props) {
-  const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<string | null>(null);
-  const [form, setForm] = useState({
+type SessionForm = {
+  workout_id: number;
+  duration_minutes: number;
+  rpe: number;
+  energy_level: string;
+  notes: string;
+  calories_burned: number;
+};
+
+function createDefaultFormState(workouts: Workout[]): SessionForm {
+  return {
     workout_id: workouts[0]?.id ?? 0,
     duration_minutes: 60,
     rpe: 7,
     energy_level: 'Focus',
     notes: '',
     calories_burned: 450
-  });
+  };
+}
+
+export function SessionLogger({ workouts, onLogged }: Props) {
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [form, setForm] = useState<SessionForm>(() => createDefaultFormState(workouts));
 
   useEffect(() => {
-    if (workouts[0]) {
-      setForm((prev) => ({ ...prev, workout_id: workouts[0].id }));
+    if (!workouts.length) {
+      return;
     }
+    setForm((prev) => {
+      const exists = workouts.some((workout) => workout.id === prev.workout_id);
+      if (exists) {
+        return prev;
+      }
+      return { ...prev, workout_id: workouts[0].id };
+    });
   }, [workouts]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -31,9 +52,13 @@ export function SessionLogger({ workouts }: Props) {
     setStatus(null);
     try {
       await logSession(form);
-      setStatus('Séance enregistrée !');
+      if (onLogged) {
+        await onLogged();
+      }
+      setStatus({ type: 'success', message: 'Séance enregistrée !' });
+      setForm(createDefaultFormState(workouts));
     } catch (error) {
-      setStatus("Impossible d'enregistrer la séance");
+      setStatus({ type: 'error', message: "Impossible d'enregistrer la séance" });
       console.error(error);
     } finally {
       setLoading(false);
@@ -125,8 +150,13 @@ export function SessionLogger({ workouts }: Props) {
             {loading ? 'Enregistrement...' : 'Valider la séance'}
           </button>
           {status && (
-            <span className="text-sm" style={{ color: 'var(--accent-gradient-mid)' }}>
-              {status}
+            <span
+              className={`text-sm font-medium ${
+                status.type === 'success' ? 'text-emerald-300' : 'text-red-200'
+              }`}
+              aria-live="polite"
+            >
+              {status.message}
             </span>
           )}
         </div>

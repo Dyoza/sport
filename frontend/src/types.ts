@@ -61,6 +61,8 @@ export interface DashboardSummary {
   focus: FocusArea;
   habits: HabitSnapshot[];
   metrics: TrendMetric[];
+  weekly_progress: WeeklyProgress;
+  training_streak_days: number;
 }
 
 export interface CalendarDay {
@@ -75,6 +77,27 @@ export interface CalendarMonth {
   month: number;
   year: number;
   days: CalendarDay[];
+}
+
+export interface WeeklyProgress {
+  total_sessions: number;
+  total_duration: number;
+  average_rpe: number;
+  calories_burned: number;
+  completion_rate: number;
+}
+
+export interface SessionSummary {
+  id: number;
+  workout_title: string;
+  focus_area: string;
+  difficulty: string;
+  performed_at: string;
+  duration_minutes: number;
+  rpe: number;
+  energy_level: string;
+  calories_burned?: number | null;
+  notes?: string | null;
 }
 
 export type ThemeId = 'glacier' | 'sunrise' | 'forest' | 'nebula';
@@ -97,6 +120,8 @@ export interface UserPreferences {
   tagline: string;
   theme: ThemeId;
   showSections: {
+    progress: boolean;
+    recentSessions: boolean;
     metrics: boolean;
     habits: boolean;
     calendar: boolean;

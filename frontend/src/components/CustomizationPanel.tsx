@@ -9,6 +9,8 @@ interface Props {
 }
 
 const sectionLabels: Record<keyof UserPreferences['showSections'], string> = {
+  progress: 'Bilan hebdomadaire',
+  recentSessions: 'Historique de séances',
   metrics: 'Tendances de performance',
   habits: 'Rituel de récupération',
   calendar: 'Calendrier adaptatif',

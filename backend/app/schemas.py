@@ -76,12 +76,35 @@ class FocusArea(BaseModel):
     emphasis: str
 
 
+class WeeklyProgress(BaseModel):
+    total_sessions: int
+    total_duration: int
+    average_rpe: float
+    calories_burned: int
+    completion_rate: float
+
+
+class SessionSummary(BaseModel):
+    id: int
+    workout_title: str
+    focus_area: str
+    difficulty: str
+    performed_at: datetime
+    duration_minutes: int
+    rpe: int
+    energy_level: str
+    calories_burned: Optional[int]
+    notes: Optional[str]
+
+
 class DashboardSummary(BaseModel):
     today_workout: WorkoutOut
     upcoming_workouts: List[WorkoutOut]
     focus: FocusArea
     habits: List[HabitSnapshot]
     metrics: List[TrendMetric]
+    weekly_progress: WeeklyProgress
+    training_streak_days: int
 
 
 class CalendarDay(BaseModel):
