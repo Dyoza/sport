@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.25), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(139, 92, 246, 0.25), transparent 45%),
+    #0f172a;
+  color: #f8fafc;
+}
+
+.glass-panel {
+  @apply rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
+}
+
+.section-title {
+  @apply font-display text-2xl tracking-wide text-white drop-shadow;
+}
+
+.gradient-text {
+  @apply bg-gradient-to-r from-neon via-emerald to-flame bg-clip-text text-transparent;
+}
+
+.grid-auto-fit {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #38bdf8, #8b5cf6);
+  border-radius: 999px;
+}
