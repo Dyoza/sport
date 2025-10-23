@@ -21,6 +21,24 @@ from .models import (
 )
 
 
+def _exercise_to_schema(exercise: Exercise) -> schemas.ExerciseOut:
+    """Convert a SQLModel exercise to its API representation."""
+
+    if exercise.id is None:
+        raise ValueError("Exercise must have a persisted identifier")
+
+    return schemas.ExerciseOut(
+        id=exercise.id,
+        name=exercise.name,
+        category=exercise.category,
+        primary_muscles=exercise.primary_muscles,
+        secondary_muscles=exercise.secondary_muscles,
+        equipment=exercise.equipment,
+        instructions=exercise.instructions,
+        video_url=exercise.video_url,
+    )
+
+
 def _build_workout(session: Session, template: WorkoutTemplate) -> schemas.WorkoutOut:
     exercise_links = session.exec(
         select(WorkoutExercise)
@@ -34,7 +52,7 @@ def _build_workout(session: Session, template: WorkoutTemplate) -> schemas.Worko
             continue
         exercises.append(
             schemas.WorkoutExerciseOut(
-                exercise=schemas.ExerciseOut.from_orm(exercise),
+                exercise=_exercise_to_schema(exercise),
                 sets=link.sets,
                 reps=link.reps,
                 rest_seconds=link.rest_seconds,
@@ -64,6 +82,11 @@ def get_workout(session: Session, workout_id: int) -> schemas.WorkoutOut:
 def list_workouts(session: Session) -> List[schemas.WorkoutOut]:
     templates = session.exec(select(WorkoutTemplate).order_by(WorkoutTemplate.focus_area)).all()
     return [_build_workout(session, template) for template in templates]
+
+
+def list_exercises(session: Session) -> List[schemas.ExerciseOut]:
+    exercises = session.exec(select(Exercise).order_by(Exercise.primary_muscles)).all()
+    return [_exercise_to_schema(exercise) for exercise in exercises]
 
 
 def log_session(session: Session, payload: schemas.SessionLogIn) -> SessionLog:

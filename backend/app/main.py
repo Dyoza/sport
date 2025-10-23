@@ -6,11 +6,10 @@ from typing import List
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel import Session, select
+from sqlmodel import Session
 
 from . import crud, schemas
 from .database import get_session, init_db
-from .models import Exercise
 
 app = FastAPI(title="Programme Sportif Ultra", version="1.0.0")
 
@@ -71,5 +70,4 @@ def read_calendar(
 
 @app.get("/api/exercises", response_model=List[schemas.ExerciseOut])
 def read_exercises(session: Session = Depends(get_db_session)) -> List[schemas.ExerciseOut]:
-    exercises = session.exec(select(Exercise).order_by(Exercise.primary_muscles)).all()
-    return [schemas.ExerciseOut.from_orm(ex) for ex in exercises]
+    return crud.list_exercises(session)
