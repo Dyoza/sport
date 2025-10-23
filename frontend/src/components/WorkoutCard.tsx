@@ -9,9 +9,8 @@ type Props = {
 export function WorkoutCard({ workout, highlight = false }: Props) {
   return (
     <article
-      className={`glass-panel relative flex flex-col gap-4 p-6 transition-transform duration-300 hover:-translate-y-1 hover:shadow-intense ${
-        highlight ? 'ring-2 ring-neon/60' : ''
-      }`}
+      className="glass-panel relative flex flex-col gap-4 p-6 transition-transform duration-300 hover:-translate-y-1 hover:shadow-intense"
+      style={highlight ? { boxShadow: '0 0 0 2px var(--accent-color)' } : undefined}
     >
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -25,28 +24,33 @@ export function WorkoutCard({ workout, highlight = false }: Props) {
       <p className="text-sm text-slate-200/80 leading-relaxed">{workout.description}</p>
       <div className="flex items-center gap-3 text-xs text-slate-200">
         <div className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1">
-          <Timer className="h-4 w-4 text-neon" />
+          <Timer className="h-4 w-4" style={{ color: 'var(--accent-color)' }} />
           <span>{workout.estimated_duration} min</span>
         </div>
         <div className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1">
-          <Dumbbell className="h-4 w-4 text-aurora" />
+          <Dumbbell className="h-4 w-4" style={{ color: 'var(--accent-gradient-mid)' }} />
           <span>{workout.exercises.length} exercices</span>
         </div>
       </div>
       <ul className="space-y-3 rounded-2xl border border-white/5 bg-white/5 p-4 text-sm text-slate-100/90">
         {workout.exercises.map((item) => (
           <li key={`${workout.id}-${item.exercise.id}-${item.sequence}`} className="flex items-start gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-neon/15 text-neon">#{item.sequence}</div>
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-full"
+              style={{ backgroundColor: 'var(--accent-soft)', color: 'var(--accent-strong)' }}
+            >
+              #{item.sequence}
+            </div>
             <div>
               <p className="font-semibold text-white">{item.exercise.name}</p>
               <p className="text-xs text-slate-300">
                 {item.sets} séries · {item.reps} répétitions · {item.rest_seconds}s repos
               </p>
-              {item.tempo && (
-                <p className="mt-1 flex items-center gap-2 text-xs text-emerald/80">
-                  <Repeat className="h-3 w-3" /> Tempo {item.tempo}
-                </p>
-              )}
+                {item.tempo && (
+                  <p className="mt-1 flex items-center gap-2 text-xs" style={{ color: 'var(--accent-gradient-mid)' }}>
+                    <Repeat className="h-3 w-3" /> Tempo {item.tempo}
+                  </p>
+                )}
             </div>
           </li>
         ))}

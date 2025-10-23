@@ -6,7 +6,7 @@ interface Props {
   metrics: TrendMetric[];
 }
 
-const colors = ['#38bdf8', '#8b5cf6', '#34d399'];
+const colors = ['var(--accent-color)', 'var(--accent-gradient-mid)', 'var(--accent-gradient-end)'];
 
 export function MetricsBoard({ metrics }: Props) {
   return (
@@ -23,10 +23,12 @@ export function MetricsBoard({ metrics }: Props) {
               <p className="text-xs uppercase text-slate-400">{metric.unit}</p>
               <div className="mt-3 h-40">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={metric.data.map((point) => ({
-                    ...point,
-                    label: dayjs(point.timestamp).format('DD MMM')
-                  }))}>
+                    <AreaChart
+                      data={metric.data.map((point) => ({
+                        ...point,
+                        label: dayjs(point.timestamp).format('DD MMM')
+                      }))}
+                    >
                     <defs>
                       <linearGradient id={`color-${index}`} x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor={colors[index % colors.length]} stopOpacity={0.8} />
@@ -42,7 +44,7 @@ export function MetricsBoard({ metrics }: Props) {
                         border: '1px solid rgba(148, 163, 184, 0.35)',
                         color: '#f8fafc'
                       }}
-                      labelStyle={{ color: '#38bdf8', fontWeight: 600 }}
+                      labelStyle={{ color: 'var(--accent-color)', fontWeight: 600 }}
                     />
                     <Area
                       type="monotone"
