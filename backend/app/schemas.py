@@ -7,7 +7,14 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
-class ExerciseOut(BaseModel):
+class OrmBaseModel(BaseModel):
+    """Base schema class enabling ORM compatibility."""
+
+    class Config:
+        orm_mode = True
+
+
+class ExerciseOut(OrmBaseModel):
     id: int
     name: str
     category: str
@@ -18,7 +25,7 @@ class ExerciseOut(BaseModel):
     video_url: Optional[str]
 
 
-class WorkoutExerciseOut(BaseModel):
+class WorkoutExerciseOut(OrmBaseModel):
     exercise: ExerciseOut
     sets: int
     reps: str
@@ -28,7 +35,7 @@ class WorkoutExerciseOut(BaseModel):
     notes: Optional[str]
 
 
-class WorkoutOut(BaseModel):
+class WorkoutOut(OrmBaseModel):
     id: int
     title: str
     description: str
