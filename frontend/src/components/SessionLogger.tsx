@@ -14,7 +14,18 @@ type SessionForm = {
   energy_level: string;
   notes: string;
   calories_burned: number;
+  performed_at: string;
 };
+
+function formatDateTimeLocal(date: Date) {
+  const pad = (value: number) => value.toString().padStart(2, '0');
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
 
 function createDefaultFormState(workouts: Workout[]): SessionForm {
   return {
@@ -23,7 +34,8 @@ function createDefaultFormState(workouts: Workout[]): SessionForm {
     rpe: 7,
     energy_level: 'Focus',
     notes: '',
-    calories_burned: 450
+    calories_burned: 450,
+    performed_at: formatDateTimeLocal(new Date())
   };
 }
 
@@ -51,7 +63,11 @@ export function SessionLogger({ workouts, onLogged }: Props) {
     setLoading(true);
     setStatus(null);
     try {
-      await logSession(form);
+      const { performed_at, ...rest } = form;
+      await logSession({
+        ...rest,
+        performed_at: performed_at ? new Date(performed_at).toISOString() : undefined
+      });
       if (onLogged) {
         await onLogged();
       }
@@ -75,6 +91,16 @@ export function SessionLogger({ workouts, onLogged }: Props) {
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
+          <label className="grid gap-2 text-sm text-slate-200">
+            Date et heure
+            <input
+              type="datetime-local"
+              max={formatDateTimeLocal(new Date())}
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white focus:border-[var(--accent-color)] focus:outline-none"
+              value={form.performed_at}
+              onChange={(event) => setForm((prev) => ({ ...prev, performed_at: event.target.value }))}
+            />
+          </label>
           <label className="grid gap-2 text-sm text-slate-200">
             Séance réalisée
             <select

@@ -14,6 +14,7 @@ import { CustomizationPanel } from './components/CustomizationPanel';
 import { PersonalGoals } from './components/PersonalGoals';
 import { ProgressHighlights } from './components/ProgressHighlights';
 import { RecentSessions } from './components/RecentSessions';
+import { WeeklyTrainingLoad } from './components/WeeklyTrainingLoad';
 import { usePreferences } from './hooks/usePreferences';
 
 dayjs.locale('fr');
@@ -152,13 +153,18 @@ export default function App() {
           <>
             <WorkoutGrid today={dashboard?.today_workout} upcoming={upcomingWorkouts} />
             {preferences.showSections.progress && (
-              <ProgressHighlights
-                progress={dashboard?.weekly_progress}
-                trainingStreakDays={dashboard?.training_streak_days ?? 0}
-              />
+              <>
+                <ProgressHighlights
+                  progress={dashboard?.weekly_progress}
+                  trainingStreakDays={dashboard?.training_streak_days ?? 0}
+                />
+                <WeeklyTrainingLoad points={dashboard?.weekly_training_load ?? []} />
+              </>
             )}
             {preferences.showSections.metrics && <MetricsBoard metrics={dashboard?.metrics ?? []} />}
-            {preferences.showSections.habits && <HabitBoard habits={dashboard?.habits ?? []} />}
+            {preferences.showSections.habits && (
+              <HabitBoard habits={dashboard?.habits ?? []} summary={dashboard?.recovery_summary} />
+            )}
             {preferences.showSections.calendar && (
               <CalendarView calendar={calendar} onChangeMonth={handleChangeMonth} />
             )}

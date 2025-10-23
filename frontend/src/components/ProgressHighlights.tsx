@@ -110,6 +110,11 @@ export function ProgressHighlights({ progress, trainingStreakDays }: Props) {
           {completionLabel}
         </div>
       </div>
+      {progress.total_sessions === 0 && (
+        <p className="rounded-3xl border border-dashed border-white/15 bg-white/5 px-4 py-5 text-sm text-slate-300">
+          Enregistre au moins une séance pour activer le bilan hebdomadaire : chaque log met à jour automatiquement ces indicateurs.
+        </p>
+      )}
     </section>
   );
 }

@@ -55,6 +55,23 @@ export interface TrendMetric {
   data: MetricPoint[];
 }
 
+export interface TrainingLoadPoint {
+  day: string;
+  sessions: number;
+  total_duration: number;
+  average_rpe: number;
+  training_load: number;
+}
+
+export interface RecoverySummary {
+  average_sleep_hours: number;
+  average_water_intake_liters: number;
+  average_readiness_score: number;
+  dominant_mood?: string | null;
+  logged_days: number;
+  expected_days: number;
+}
+
 export interface DashboardSummary {
   today_workout: Workout;
   upcoming_workouts: Workout[];
@@ -63,6 +80,8 @@ export interface DashboardSummary {
   metrics: TrendMetric[];
   weekly_progress: WeeklyProgress;
   training_streak_days: number;
+  weekly_training_load: TrainingLoadPoint[];
+  recovery_summary: RecoverySummary;
 }
 
 export interface CalendarDay {
