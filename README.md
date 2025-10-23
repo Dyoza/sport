@@ -6,9 +6,12 @@ Une application complète pour orchestrer tes entraînements quotidiens : planif
 
 - **Tableau de bord dynamique** : focus du jour, séance à réaliser, aperçu des séances à venir.
 - **Visualisations interactives** : courbes de charge tonnage, fréquence cardiaque au repos et variabilité HRV sur 30 jours.
+- **Bilan hebdomadaire intelligent** : synthèse du volume réalisé, intensité moyenne, calories estimées et taux d'adhérence au plan.
+- **Suivi de streak** : calcul automatique des jours consécutifs d'entraînement pour entretenir la motivation.
 - **Suivi récupération & habitudes** : hydratation, sommeil, humeur et score de préparation sur les deux dernières semaines.
 - **Calendrier adaptatif** : planification hebdomadaire des blocs d'entraînement avec validation automatique des séances réalisées.
 - **Journal de performance** : formulaire ergonomique pour enregistrer chaque séance (durée, RPE, calories, notes).
+- **Historique instantané** : fil des dernières séances enregistrées avec ressentis, énergie et indicateurs clés.
 - **Bibliothèque d'exercices** : fiches détaillées avec points clés et vidéos de démonstration.
 
 ## Structure du projet
@@ -58,6 +61,8 @@ Dans un nouveau terminal :
 ```bash
 cd frontend
 npm install
+# optionnel : définir l'URL de l'API (par défaut `http://localhost:8000/api` via proxy Vite)
+echo "VITE_API_URL=http://localhost:8000/api" > .env.local
 npm run dev
 ```
 
@@ -92,6 +97,7 @@ Une fois le backend lancé, vérifie le tableau de bord :
 
 ```bash
 curl http://localhost:8000/api/dashboard | jq
+curl http://localhost:8000/api/sessions/recent | jq
 ```
 
 La documentation interactive est disponible sur http://localhost:8000/docs.
@@ -100,6 +106,7 @@ La documentation interactive est disponible sur http://localhost:8000/docs.
 
 - Modifie `backend/app/seed.py` pour adapter les programmes, focus ou métriques.
 - Ajoute tes propres séances via l'API `POST /api/workouts` (à implémenter selon tes besoins).
+- Active/désactive les sections (bilan hebdomadaire, historique des séances, métriques...) depuis le panneau de personnalisation.
 - Les styles Tailwind sont centralisés dans `frontend/src/index.css` et `tailwind.config.cjs` pour ajuster la palette, les ombres et les polices.
 
 Bon entraînement !

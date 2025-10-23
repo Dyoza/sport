@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.sqlite3
+backend/data/
+.venv/
+venv/
+
+# Node/Vite
+frontend/node_modules/
+frontend/dist/
+frontend/.env*
+
+# Environment files
+.env
+.env.*
+
+# OS / Editor
+.DS_Store
+Thumbs.db

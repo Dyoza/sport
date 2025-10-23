@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from calendar import monthrange
 from collections import defaultdict
-from datetime import date, datetime, timedelta
-from typing import Dict, Iterable, List
+from datetime import date, datetime, time, timedelta
+from typing import Dict, Iterable, List, Sequence
 
 from sqlmodel import Session, select
 
@@ -69,6 +69,64 @@ def _build_workout(session: Session, template: WorkoutTemplate) -> schemas.Worko
         focus_area=template.focus_area,
         estimated_duration=template.estimated_duration,
         exercises=exercises,
+    )
+
+
+def _calculate_training_streak(logs: Sequence[SessionLog], today: date) -> int:
+    """Return the number of consecutive days with at least one session."""
+
+    log_dates = {log.performed_at.date() for log in logs}
+    streak = 0
+    cursor = today
+    while cursor in log_dates:
+        streak += 1
+        cursor -= timedelta(days=1)
+    return streak
+
+
+def _calculate_weekly_progress(
+    today: date,
+    weekday: int,
+    schedule_by_day: Dict[int, List[ProgramSchedule]],
+    logs: Sequence[SessionLog],
+) -> schemas.WeeklyProgress:
+    """Compute aggregated statistics for the current training week."""
+
+    week_start = today - timedelta(days=weekday)
+    week_end = week_start + timedelta(days=6)
+    start_dt = datetime.combine(week_start, time.min)
+    end_dt = datetime.combine(week_end + timedelta(days=1), time.min)
+
+    weekly_logs = [
+        log
+        for log in logs
+        if start_dt <= log.performed_at < end_dt
+    ]
+
+    total_sessions = len(weekly_logs)
+    total_duration = sum(log.duration_minutes for log in weekly_logs)
+    average_rpe = (
+        round(sum(log.rpe for log in weekly_logs) / total_sessions, 1)
+        if total_sessions
+        else 0.0
+    )
+    calories = sum((log.calories_burned or 0) for log in weekly_logs)
+
+    scheduled_days = sum(1 for day in range(7) if schedule_by_day.get(day))
+    unique_completed_days = {log.performed_at.date() for log in weekly_logs}
+    completion_rate = 100.0
+    if scheduled_days:
+        completion_rate = min(
+            100.0,
+            round(len(unique_completed_days) / scheduled_days * 100, 1),
+        )
+
+    return schemas.WeeklyProgress(
+        total_sessions=total_sessions,
+        total_duration=total_duration,
+        average_rpe=average_rpe,
+        calories_burned=calories,
+        completion_rate=completion_rate,
     )
 
 
@@ -137,6 +195,8 @@ def get_dashboard_summary(session: Session) -> schemas.DashboardSummary:
     for entry in schedule_entries:
         grouped_schedule[entry.day_of_week].append(entry)
 
+    all_logs = session.exec(select(SessionLog).order_by(SessionLog.performed_at.desc())).all()
+
     def workout_from_schedule(day_index: int) -> List[schemas.WorkoutOut]:
         templates = [session.get(WorkoutTemplate, entry.workout_id) for entry in grouped_schedule.get(day_index, [])]
         return [_build_workout(session, template) for template in templates if template]
@@ -201,13 +261,53 @@ def get_dashboard_summary(session: Session) -> schemas.DashboardSummary:
         select(MetricLog).where(MetricLog.logged_at >= datetime.utcnow() - timedelta(days=30))
     ).all()
 
+    weekly_progress = _calculate_weekly_progress(
+        today=today,
+        weekday=weekday,
+        schedule_by_day=grouped_schedule,
+        logs=all_logs,
+    )
+    training_streak = _calculate_training_streak(all_logs, today)
+
     return schemas.DashboardSummary(
         today_workout=today_workout,
         upcoming_workouts=upcoming,
         focus=focus_schema,
         habits=habit_schemas,
         metrics=_group_metrics(metric_logs),
+        weekly_progress=weekly_progress,
+        training_streak_days=training_streak,
     )
+
+
+def get_recent_sessions(session: Session, limit: int = 5) -> List[schemas.SessionSummary]:
+    logs = session.exec(
+        select(SessionLog)
+        .order_by(SessionLog.performed_at.desc())
+        .limit(limit)
+    ).all()
+
+    summaries: List[schemas.SessionSummary] = []
+    for log in logs:
+        if log.id is None:
+            continue
+        workout = session.get(WorkoutTemplate, log.workout_id)
+        summaries.append(
+            schemas.SessionSummary(
+                id=log.id,
+                workout_title=workout.title if workout else "Séance personnalisée",
+                focus_area=workout.focus_area if workout else "Personnalisé",
+                difficulty=workout.difficulty if workout else "Libre",
+                performed_at=log.performed_at,
+                duration_minutes=log.duration_minutes,
+                rpe=log.rpe,
+                energy_level=log.energy_level,
+                calories_burned=log.calories_burned,
+                notes=log.notes,
+            )
+        )
+
+    return summaries
 
 
 def get_calendar(session: Session, month: int, year: int) -> schemas.CalendarMonth:

@@ -59,6 +59,14 @@ def create_session(
     return {"id": log.id, "performed_at": log.performed_at}
 
 
+@app.get("/api/sessions/recent", response_model=List[schemas.SessionSummary])
+def read_recent_sessions(
+    limit: int = Query(default=5, ge=1, le=20),
+    session: Session = Depends(get_db_session),
+) -> List[schemas.SessionSummary]:
+    return crud.get_recent_sessions(session, limit=limit)
+
+
 @app.get("/api/calendar", response_model=schemas.CalendarMonth)
 def read_calendar(
     month: int = Query(default=date.today().month, ge=1, le=12),

@@ -87,6 +87,8 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   tagline: "Ton copilote d'entraînement quotidien : planifie, exécute et mesure tes performances.",
   theme: 'glacier',
   showSections: {
+    progress: true,
+    recentSessions: true,
     metrics: true,
     habits: true,
     calendar: true,

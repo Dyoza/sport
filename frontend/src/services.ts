@@ -1,8 +1,11 @@
 import axios from 'axios';
-import { CalendarMonth, DashboardSummary, Workout, Exercise } from './types';
+import { CalendarMonth, DashboardSummary, Workout, Exercise, SessionSummary } from './types';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
 
 const client = axios.create({
-  baseURL: '/api'
+  baseURL: API_BASE_URL,
+  timeout: 10000
 });
 
 export async function fetchDashboard(): Promise<DashboardSummary> {
@@ -33,5 +36,10 @@ export async function logSession(payload: {
 
 export async function fetchExercises(): Promise<Exercise[]> {
   const { data } = await client.get<Exercise[]>('/exercises');
+  return data;
+}
+
+export async function fetchRecentSessions(limit = 5): Promise<SessionSummary[]> {
+  const { data } = await client.get<SessionSummary[]>('/sessions/recent', { params: { limit } });
   return data;
 }
